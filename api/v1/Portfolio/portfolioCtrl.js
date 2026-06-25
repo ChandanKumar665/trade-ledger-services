@@ -1,8 +1,8 @@
-const SignUpSrvc = require('./signUpSrvc')
+const AccountSrvc = require('./portfolioSrvc')
 
-class SignUpCtrl {
+class AccountCtrl {
   create(req, res, next) {
-    new SignUpSrvc().create(
+    new AccountSrvc().create(
       req,
       res,
       data => {
@@ -12,8 +12,8 @@ class SignUpCtrl {
       next
     )
   }
-  details(req, res, next) {
-    new SignUpSrvc().details(
+  getList(req, res, next) {
+    new AccountSrvc().getList(
       req,
       res,
       data => {
@@ -25,4 +25,4 @@ class SignUpCtrl {
   }
 }
 
-module.exports = SignUpCtrl
+module.exports = AccountCtrl

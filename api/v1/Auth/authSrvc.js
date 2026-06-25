@@ -7,9 +7,9 @@ const status = require('../../../https_status')
 const { validateInputs } = require('../../../utils')
 const UserSrvc = require('../../../services/User')
 
-class SignUpSrvc {
-  async create(req, res, callback) {
-    const { name, phone, trading_exp } = req.body
+class AuthSrvc {
+  async auth(req, res, callback) {
+    const { phone } = req.body
     let statusCode = ''
     try {
       let response = {
@@ -19,7 +19,7 @@ class SignUpSrvc {
       }
 
       const requiredInputs = {
-        name, phone
+        phone
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -37,11 +37,11 @@ class SignUpSrvc {
       }
 
       const user = new UserSrvc()
-      const res = await user.create({ name, phone, trading_exp })
-      if (!res.acknowledged) {
-        throw Error('DB Error')
+      const res = await user.details({ phone })
+      if (!res?._id) {
+        throw Error('User Not Found')
       }
-      callback({ ...response, data: res.insertedId })
+      callback({ ...response, data: res })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
@@ -93,4 +93,4 @@ class SignUpSrvc {
     }
   }
 }
-module.exports = SignUpSrvc
+module.exports = AuthSrvc

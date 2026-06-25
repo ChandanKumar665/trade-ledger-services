@@ -1,8 +1,8 @@
-const SignUpSrvc = require('./signUpSrvc')
+const TradeSrvc = require('./tradeSrvc')
 
-class SignUpCtrl {
+class TradeCtrl {
   create(req, res, next) {
-    new SignUpSrvc().create(
+    new TradeSrvc().create(
       req,
       res,
       data => {
@@ -13,7 +13,18 @@ class SignUpCtrl {
     )
   }
   details(req, res, next) {
-    new SignUpSrvc().details(
+    new TradeSrvc().details(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
+  getList(req, res, next) {
+    new TradeSrvc().getList(
       req,
       res,
       data => {
@@ -25,4 +36,4 @@ class SignUpCtrl {
   }
 }
 
-module.exports = SignUpCtrl
+module.exports = TradeCtrl

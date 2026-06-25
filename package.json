@@ -23,6 +23,8 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^4.19.2",
+    "mongodb": "^7.3.0",
+    "mongoose": "^9.7.1",
     "uuid": "^14.0.0"
   },
   "devDependencies": {

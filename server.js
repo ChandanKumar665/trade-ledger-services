@@ -14,11 +14,21 @@ app.use(express.json());
 app.use(cors())
 dotenv.config();
 
-app.use('/api/v1', api_v1)
+
 
 //set static folder
 app.use(express.static('.'))
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html')) //relative path
 })
-server.listen(PORT, () => console.log(`Server started at port ${PORT}`))
+
+const { connectDB, client } = require('./services/db')
+
+app.use('/api/v1', api_v1)
+
+connectDB().then(() => {
+    server.listen(PORT, async () => {
+        console.log(`Server started at port ${PORT}`)
+    })
+}).catch(err => console.log(err)).finally(client.close());
+

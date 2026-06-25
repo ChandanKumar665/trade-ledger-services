@@ -5,11 +5,22 @@
 
 const status = require('../../../https_status')
 const { validateInputs } = require('../../../utils')
-const UserSrvc = require('../../../services/User')
+const Trade = require('../../../services/Trade')
 
-class SignUpSrvc {
+class TradeSrvc {
   async create(req, res, callback) {
-    const { name, phone, trading_exp } = req.body
+    const { symbol,
+      order_type,
+      desc,
+      open_time,
+      close_time,
+      entry_price,
+      exit_price,
+      qty,
+      pnl,
+      user_id,
+      account_id
+    } = req.body
     let statusCode = ''
     try {
       let response = {
@@ -19,7 +30,16 @@ class SignUpSrvc {
       }
 
       const requiredInputs = {
-        name, phone
+        symbol,
+        order_type,
+        open_time,
+        close_time,
+        entry_price,
+        exit_price,
+        qty,
+        pnl,
+        user_id,
+        account_id
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -28,16 +48,28 @@ class SignUpSrvc {
           success: false,
           statusCode: status.HTTPS.BAD_REQUEST
         })
-      } else if (isNaN(phone)) {
+      } else if (isNaN(pnl) || isNaN(qty) || isNaN(entry_price) || isNaN(exit_price)) {
         return callback({
-          message: `Invalid input: ${phone}`,
+          message: `Invalid input:`,
           success: false,
           statusCode: status.HTTPS.BAD_REQUEST
         })
       }
 
-      const user = new UserSrvc()
-      const res = await user.create({ name, phone, trading_exp })
+      const trade = new Trade()
+      const res = await trade.create({
+        symbol,
+        order_type,
+        desc,
+        open_time,
+        close_time,
+        entry_price,
+        exit_price,
+        qty,
+        pnl,
+        user_id,
+        account_id
+      })
       if (!res.acknowledged) {
         throw Error('DB Error')
       }
@@ -51,7 +83,8 @@ class SignUpSrvc {
     }
   }
   async details(req, res, callback) {
-    const { phone } = req.body
+
+    const { trade_id } = req.body
     let statusCode = ''
     try {
       let response = {
@@ -61,7 +94,7 @@ class SignUpSrvc {
       }
 
       const requiredInputs = {
-        phone
+        trade_id
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -70,16 +103,10 @@ class SignUpSrvc {
           success: false,
           statusCode: status.HTTPS.BAD_REQUEST
         })
-      } else if (isNaN(phone)) {
-        return callback({
-          message: `Invalid input: ${phone}`,
-          success: false,
-          statusCode: status.HTTPS.BAD_REQUEST
-        })
       }
 
-      const user = new UserSrvc()
-      const res = await user.details({ phone })
+      const trade = new Trade()
+      const res = await trade.details({ trade_id })
       if (!res._id) {
         throw Error('DB Error')
       }
@@ -92,5 +119,40 @@ class SignUpSrvc {
       })
     }
   }
+  async getList(req, res, callback) {
+
+    const { user_id, account_id } = req.body
+    let statusCode = ''
+    try {
+      let response = {
+        message: `ok`,
+        success: true,
+        statusCode: status.HTTPS.SUCCESS
+      }
+
+      const requiredInputs = {
+        user_id, account_id
+      }
+      const { success, key } = await validateInputs(requiredInputs)
+      if (!success) {
+        return callback({
+          message: `Invalid or missing input: ${key}`,
+          success: false,
+          statusCode: status.HTTPS.BAD_REQUEST
+        })
+      }
+
+      const trade = new Trade()
+      const res = await trade.getList({ user_id, account_id })
+
+      callback({ ...response, data: res })
+    } catch (error) {
+      callback({
+        message: `Error: ${error.message}`,
+        success: false,
+        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+      })
+    }
+  }
 }
-module.exports = SignUpSrvc
+module.exports = TradeSrvc

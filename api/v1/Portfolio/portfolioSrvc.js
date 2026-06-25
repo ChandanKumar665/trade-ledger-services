@@ -5,11 +5,11 @@
 
 const status = require('../../../https_status')
 const { validateInputs } = require('../../../utils')
-const UserSrvc = require('../../../services/User')
+const Account = require('../../../services/Account')
 
-class SignUpSrvc {
+class AccountSrvc {
   async create(req, res, callback) {
-    const { name, phone, trading_exp } = req.body
+    const { name, curr, initial_cap, user_id } = req.body
     let statusCode = ''
     try {
       let response = {
@@ -19,7 +19,7 @@ class SignUpSrvc {
       }
 
       const requiredInputs = {
-        name, phone
+        name, curr, initial_cap, user_id
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -28,7 +28,7 @@ class SignUpSrvc {
           success: false,
           statusCode: status.HTTPS.BAD_REQUEST
         })
-      } else if (isNaN(phone)) {
+      } else if (isNaN(initial_cap)) {
         return callback({
           message: `Invalid input: ${phone}`,
           success: false,
@@ -36,8 +36,8 @@ class SignUpSrvc {
         })
       }
 
-      const user = new UserSrvc()
-      const res = await user.create({ name, phone, trading_exp })
+      const account = new Account()
+      const res = await account.create(requiredInputs)
       if (!res.acknowledged) {
         throw Error('DB Error')
       }
@@ -50,8 +50,8 @@ class SignUpSrvc {
       })
     }
   }
-  async details(req, res, callback) {
-    const { phone } = req.body
+  async getList(req, res, callback) {
+    const { user_id } = req.body
     let statusCode = ''
     try {
       let response = {
@@ -61,7 +61,7 @@ class SignUpSrvc {
       }
 
       const requiredInputs = {
-        phone
+        user_id
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -70,19 +70,10 @@ class SignUpSrvc {
           success: false,
           statusCode: status.HTTPS.BAD_REQUEST
         })
-      } else if (isNaN(phone)) {
-        return callback({
-          message: `Invalid input: ${phone}`,
-          success: false,
-          statusCode: status.HTTPS.BAD_REQUEST
-        })
       }
 
-      const user = new UserSrvc()
-      const res = await user.details({ phone })
-      if (!res._id) {
-        throw Error('DB Error')
-      }
+      const account = new Account()
+      const res = await account.getList(requiredInputs)
       callback({ ...response, data: res })
     } catch (error) {
       callback({
@@ -93,4 +84,4 @@ class SignUpSrvc {
     }
   }
 }
-module.exports = SignUpSrvc
+module.exports = AccountSrvc
