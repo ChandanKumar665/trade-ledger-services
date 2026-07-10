@@ -1,6 +1,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const { client, ObjectId } = require('./db')
+const TradeModel = require('../models/TradeModel')
 const dates = { createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString() }
 
 class Trade {
@@ -10,41 +11,18 @@ class Trade {
     }
 
     async create(input) {
-        const { symbol,
-            order_type,
-            desc,
-            open_time,
-            close_time,
-            entry_price,
-            exit_price,
-            qty,
-            pnl,
-            user_id,
-            account_id
-        } = input
-        const res = await this.collection.insertOne({
-            symbol,
-            order_type: order_type.toUpperCase(),
-            desc,
-            open_time,
-            close_time,
-            entry_price,
-            exit_price,
-            qty,
-            pnl,
-            user_id,
-            account_id, ...dates
-        })
+        const trade = new TradeModel(input);
+        const res = await trade.save();
         return res
     }
     async details(input) {
         const { trade_id } = input
-        const res = await this.collection.findOne({ _id: new ObjectId(trade_id) })
+        const res = await TradeModel.findOne({ _id: new ObjectId(trade_id) })
         return res
     }
     async getList(input) {
         const { user_id, account_id } = input
-        const res = await this.collection.find({ user_id, account_id }).toArray()
+        const res = await TradeModel.find({ user_id, account_id })
         return res
     }
 }

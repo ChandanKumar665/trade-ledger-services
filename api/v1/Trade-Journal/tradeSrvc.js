@@ -70,10 +70,10 @@ class TradeSrvc {
         user_id,
         account_id
       })
-      if (!res.acknowledged) {
+      if (!res._id) {
         throw Error('DB Error')
       }
-      callback({ ...response, data: res.insertedId })
+      callback({ ...response, data: res._id })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,

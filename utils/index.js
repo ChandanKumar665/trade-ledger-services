@@ -1,6 +1,7 @@
 const crypto = require('crypto')
 const uuid = require('uuid')
 const PASS = 'Demo@987#'
+const validator = require('validator')
 
 exports.encryptData = async plainText => {
     var iv = crypto.randomBytes(16)
@@ -32,6 +33,7 @@ exports.getRandom = (size = 10) => {
 }
 
 exports.getTokenId = () => {
+    validator.isStrongPassword('123')
     const bsid = uuid.v4().split('-').join('')
     const str = checksum(bsid)
     return bsid + str
