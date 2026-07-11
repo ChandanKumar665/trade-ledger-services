@@ -17,12 +17,24 @@ class Trade {
     }
     async details(input) {
         const { trade_id } = input
-        const res = await TradeModel.findOne({ _id: new ObjectId(trade_id) })
+        const res = await TradeModel.findOne({ _id: new ObjectId(trade_id) });
         return res
     }
     async getList(input) {
         const { user_id, account_id } = input
-        const res = await TradeModel.find({ user_id, account_id })
+        const res = await TradeModel.find({ user_id, account_id });
+        return res
+    }
+    async deleteTrade(input) {
+        const { user_id, account_id, trade_id } = input
+        const res = await TradeModel.findOneAndDelete({ _id: new ObjectId(trade_id), user_id, account_id });
+        return res
+    }
+    async update(input) {
+        const { user_id, account_id, trade_id,
+            symbol, order_type, desc, open_time, close_time, entry_price, exit_price, qty, pnl, charges
+        } = input
+        const res = await TradeModel.findOneAndUpdate({ _id: new ObjectId(trade_id), user_id, account_id }, { symbol, order_type, desc, open_time, close_time, entry_price, exit_price, qty, pnl, charges });
         return res
     }
 }

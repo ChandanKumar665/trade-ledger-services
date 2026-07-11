@@ -38,6 +38,9 @@ const tradeSchema = {
         type: Number,
         required: [true, 'pnl is required']
     },
+    charges: {
+        type: Number,
+    },
     account_id: {
         type: String,
         required: [true, 'account id is required']

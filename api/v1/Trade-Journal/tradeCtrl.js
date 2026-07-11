@@ -34,6 +34,28 @@ class TradeCtrl {
       next
     )
   }
+  deleteTrade(req, res, next) {
+    new TradeSrvc().deleteTrade(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
+  updateTrade(req, res, next) {
+    new TradeSrvc().updateTrade(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
 }
 
 module.exports = TradeCtrl
