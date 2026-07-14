@@ -22,7 +22,36 @@ class Trade {
     }
     async getList(input) {
         const { user_id, account_id } = input
-        const res = await TradeModel.find({ user_id, account_id });
+        const res = await TradeModel.aggregate(
+            [
+                { $match: { user_id, account_id } },
+                {
+                    $addFields: {
+                        accountIdObj: {
+                            $toObjectId: "$account_id"
+                        }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'accounts',
+                        localField: 'accountIdObj',
+                        foreignField: '_id',
+                        pipeline: [
+                            {
+                                $project: {
+                                    _id: 0,
+                                    curr: 1
+                                }
+                            }
+                        ],
+                        as: 'curr'
+                    }
+                },
+
+            ]
+        )
+            .sort({ open_time: -1 });
         return res
     }
     async deleteTrade(input) {
