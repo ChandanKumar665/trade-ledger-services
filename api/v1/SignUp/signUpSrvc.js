@@ -9,11 +9,11 @@ const UserSrvc = require('../../../services/User')
 
 class SignUpSrvc {
   async create(req, res, callback) {
-    const { name, phone, trading_exp } = req.body
+    const { name, phone, email, trading_exp } = req.body
     let statusCode = ''
     try {
       let response = {
-        message: `ok`,
+        message: `User created successfully`,
         success: true,
         statusCode: status.HTTPS.SUCCESS
       }
@@ -37,11 +37,15 @@ class SignUpSrvc {
       }
 
       const user = new UserSrvc()
-      const res = await user.create({ name, phone, trading_exp })
-      if (!res._id) {
-        throw Error('DB Error')
+      const res = await user.create({ name, phone, email, trading_exp })
+      if (!res.success) {
+        return callback({
+          message: res.msg,
+          success: false,
+          statusCode: res.statusCode
+        })
       }
-      callback({ ...response, data: res._id })
+      callback({ ...response, ...res })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,

@@ -13,7 +13,7 @@ class AuthSrvc {
     let statusCode = ''
     try {
       let response = {
-        message: `ok`,
+        message: `User Found`,
         success: true,
         statusCode: status.HTTPS.SUCCESS
       }
@@ -39,7 +39,11 @@ class AuthSrvc {
       const user = new UserSrvc()
       const res = await user.details({ phone })
       if (!res?._id) {
-        throw Error('User Not Found')
+        return callback({
+          message: `User not found`,
+          success: false,
+          statusCode: status.HTTPS.NOT_FOUND
+        })
       }
       callback({ ...response, data: res })
     } catch (error) {

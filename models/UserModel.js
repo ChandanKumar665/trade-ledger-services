@@ -9,6 +9,7 @@ const userSchema = {
     },
     phone: {
         type: Number,
+        unique: true,
         required: [true, 'User phone number required'],
     },
     trading_exp: {

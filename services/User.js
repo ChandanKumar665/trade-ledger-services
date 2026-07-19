@@ -2,7 +2,6 @@ const dotenv = require('dotenv')
 dotenv.config()
 const { client } = require('./db')
 const UserModel = require('../models/UserModel');
-const dates = { createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString() }
 
 class UserSrvc {
     constructor() {
@@ -11,14 +10,25 @@ class UserSrvc {
     }
 
     async create(input) {
-        const { name, phone, trading_exp } = input
-        const user = new UserModel({ name, phone, trading_exp });
-        const res = await user.save();
-        return res
+        try {
+            const { name, phone, email, trading_exp } = input
+            const user = new UserModel({ name, phone, email, trading_exp });
+            const res = await user.save();
+            return { success: true, data: res }
+        } catch (error) {
+            if (error.code === 11000 && error.keyPattern?.phone) {
+                return {
+                    success: false,
+                    msg: 'Phone number already exists.',
+                    statusCode: 400
+                }
+            }
+            throw err;
+        }
     }
     async details(input) {
         const { phone } = input
-        const res = await UserModel.findOne({ phone: '8210357799' });
+        const res = await UserModel.findOne({ phone });
         return res
     }
 }
