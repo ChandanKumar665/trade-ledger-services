@@ -56,6 +56,17 @@ class TradeCtrl {
       next
     )
   }
+  tradeStats(req, res, next) {
+    new TradeSrvc().tradeStats(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
 }
 
 module.exports = TradeCtrl

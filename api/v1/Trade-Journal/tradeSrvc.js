@@ -123,7 +123,7 @@ class TradeSrvc {
   }
   async getList(req, res, callback) {
 
-    const { user_id, account_id } = req.body
+    const { user_id, account_id, filter } = req.body
     let statusCode = ''
     try {
       let response = {
@@ -145,7 +145,42 @@ class TradeSrvc {
       }
 
       const trade = new Trade()
-      const res = await trade.getList({ user_id, account_id })
+      const res = await trade.getList({ user_id, account_id, filter })
+
+      callback({ ...response, data: res })
+    } catch (error) {
+      callback({
+        message: `Error: ${error.message}`,
+        success: false,
+        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+      })
+    }
+  }
+  async tradeStats(req, res, callback) {
+
+    const { user_id, account_id, filter } = req.body
+    let statusCode = ''
+    try {
+      let response = {
+        message: `Trade stat fecthed successfully`,
+        success: true,
+        statusCode: status.HTTPS.SUCCESS
+      }
+
+      const requiredInputs = {
+        user_id, account_id
+      }
+      const { success, key } = await validateInputs(requiredInputs)
+      if (!success) {
+        return callback({
+          message: `Invalid or missing input: ${key}`,
+          success: false,
+          statusCode: status.HTTPS.BAD_REQUEST
+        })
+      }
+
+      const trade = new Trade()
+      const res = await trade.getTradeStats({ user_id, account_id, filter })
 
       callback({ ...response, data: res })
     } catch (error) {

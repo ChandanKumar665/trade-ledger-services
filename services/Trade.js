@@ -21,10 +21,18 @@ class Trade {
         return res
     }
     async getList(input) {
-        const { user_id, account_id } = input
+        const { user_id, account_id, filter } = input
+        const end = new Date(filter?.end);
+        end?.setUTCDate(end?.getUTCDate() + 1);
+        const filterQuery = filter?.start && filter?.end ? {
+            open_time: {
+                $gte: filter.start,
+                $lt: end?.toISOString().split('T')[0]
+            }
+        } : {}
         const res = await TradeModel.aggregate(
             [
-                { $match: { user_id, account_id } },
+                { $match: { user_id, account_id, ...filterQuery } },
                 {
                     $addFields: {
                         accountIdObj: {
@@ -48,12 +56,99 @@ class Trade {
                         as: 'curr'
                     }
                 },
-
+                {
+                    $project: {
+                        createdAt: 0,
+                        updatedAt: 0
+                    }
+                }
             ]
         )
             .sort({ open_time: -1 });
         return res
     }
+
+    async getTradeStats(input) {
+        const { user_id, account_id, filter } = input
+        const end = new Date(filter?.end);
+        end?.setUTCDate(end?.getUTCDate() + 1);
+        const filterQuery = filter?.start && filter?.end ? {
+            open_time: {
+                $gte: filter.start,
+                $lt: end.toISOString().split('T')[0]
+            }
+        } : {}
+        const res = await TradeModel.aggregate([
+            {
+                $match: {
+                    user_id,
+                    account_id,
+                    ...filterQuery
+                }
+            },
+            {
+                $addFields: {
+                    accountIdObj: {
+                        $toObjectId: "$account_id"
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "accounts",
+                    localField: "accountIdObj",
+                    foreignField: "_id",
+                    as: "account"
+                }
+            },
+            {
+                $unwind: "$account"
+            },
+            {
+                $sort: {
+                    open_time: 1
+                }
+            },
+            {
+                $setWindowFields: {
+                    sortBy: {
+                        open_time: 1
+                    },
+                    output: {
+                        cumulativePnl: {
+                            $sum: "$pnl",
+                            window: {
+                                documents: ["unbounded", "current"]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    initial_cap: "$account.initial_cap",
+                    total: {
+                        $add: [
+                            "$account.initial_cap",
+                            "$cumulativePnl"
+                        ]
+                    }
+                }
+            },
+            {
+                $project: {
+                    open_time: 1,
+                    close_time: 1,
+                    pnl: 1,
+                    cumulativePnl: 1,
+                    initial_cap: 1,
+                    total: 1,
+                }
+            }
+        ]);
+        return res
+    }
+
     async deleteTrade(input) {
         const { user_id, account_id, trade_id } = input
         const res = await TradeModel.findOneAndDelete({ _id: new ObjectId(trade_id), user_id, account_id });

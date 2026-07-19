@@ -7,6 +7,7 @@ router.post('/info', new TradeCtrl().details)
 router.post('/list', new TradeCtrl().getList)
 router.post('/remove', new TradeCtrl().deleteTrade)
 router.post('/update', new TradeCtrl().updateTrade)
+router.post('/stats', new TradeCtrl().tradeStats)
 
 // router.post('/ab?c', new SignUpCtrl().details) // will work for both /ab or abc - regex
 module.exports = router
