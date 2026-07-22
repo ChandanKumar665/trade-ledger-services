@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isEmail } = require('validator')
 const Schema = mongoose.Schema;
 
 const userSchema = {
@@ -15,6 +16,17 @@ const userSchema = {
     trading_exp: {
         type: String,
         default: '0 years'
+    },
+    email: {
+        type: String,
+        trim: true,
+        validate: {
+            validator: isEmail
+        }
+    },
+    bio: {
+        type: String,
+        trim: true
     },
 }
 

@@ -1,9 +1,9 @@
 const dotenv = require('dotenv')
 dotenv.config()
-const { client } = require('./db')
+const { client, ObjectId } = require('./db')
 const UserModel = require('../models/UserModel');
 
-class UserSrvc {
+class User {
     constructor() {
         this.db = client.db(process.env.DB)
         this.collection = this.db.collection('users');
@@ -26,10 +26,20 @@ class UserSrvc {
             throw err;
         }
     }
-    async details(input) {
+    async search(input) {
         const { phone } = input
         const res = await UserModel.findOne({ phone });
         return res
     }
+    async profile(input) {
+        const { user_id } = input
+        const res = await UserModel.findOne({ _id: new ObjectId(user_id) });
+        return res
+    }
+    async update(input) {
+        const { user_id, trading_exp, email, bio, name } = input
+        const res = await UserModel.findOneAndUpdate({ _id: new ObjectId(user_id) }, { trading_exp, email, bio, name });
+        return res
+    }
 }
-module.exports = UserSrvc
+module.exports = User

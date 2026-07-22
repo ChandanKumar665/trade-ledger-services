@@ -5,7 +5,7 @@
 
 const status = require('../../../https_status')
 const { validateInputs } = require('../../../utils')
-const UserSrvc = require('../../../services/User')
+const User = require('../../../services/User')
 
 class AuthSrvc {
   async auth(req, res, callback) {
@@ -36,8 +36,8 @@ class AuthSrvc {
         })
       }
 
-      const user = new UserSrvc()
-      const res = await user.details({ phone })
+      const user = new User()
+      const res = await user.search({ phone })
       if (!res?._id) {
         return callback({
           message: `User not found`,

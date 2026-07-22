@@ -5,9 +5,9 @@
 
 const status = require('../../../https_status')
 const { validateInputs } = require('../../../utils')
-const UserSrvc = require('../../../services/User')
+const User = require('../../../services/User')
 
-class SignUpSrvc {
+class UserSrvc {
   async create(req, res, callback) {
     const { name, phone, email, trading_exp } = req.body
     let statusCode = ''
@@ -36,7 +36,7 @@ class SignUpSrvc {
         })
       }
 
-      const user = new UserSrvc()
+      const user = new User()
       const res = await user.create({ name, phone, email, trading_exp })
       if (!res.success) {
         return callback({
@@ -54,8 +54,8 @@ class SignUpSrvc {
       })
     }
   }
-  async details(req, res, callback) {
-    const { phone } = req.body
+  async profile(req, res, callback) {
+    const { user_id } = req.body
     let statusCode = ''
     try {
       let response = {
@@ -65,7 +65,7 @@ class SignUpSrvc {
       }
 
       const requiredInputs = {
-        phone
+        user_id
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -74,16 +74,46 @@ class SignUpSrvc {
           success: false,
           statusCode: status.HTTPS.BAD_REQUEST
         })
-      } else if (isNaN(phone)) {
+      }
+
+      const user = new User()
+      const res = await user.profile({ user_id })
+      if (!res._id) {
+        throw Error('DB Error')
+      }
+      callback({ ...response, data: res })
+    } catch (error) {
+      callback({
+        message: `Error: ${error.message}`,
+        success: false,
+        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+      })
+    }
+  }
+  async update(req, res, callback) {
+    const { user_id, trading_exp, email, bio, name } = req.body
+    let statusCode = ''
+    try {
+      let response = {
+        message: `Profile updated successfully`,
+        success: true,
+        statusCode: status.HTTPS.SUCCESS
+      }
+
+      const requiredInputs = {
+        user_id
+      }
+      const { success, key } = await validateInputs(requiredInputs)
+      if (!success) {
         return callback({
-          message: `Invalid input: ${phone}`,
+          message: `Invalid or missing input: ${key}`,
           success: false,
           statusCode: status.HTTPS.BAD_REQUEST
         })
       }
 
-      const user = new UserSrvc()
-      const res = await user.details({ phone })
+      const user = new User()
+      const res = await user.update({ user_id, trading_exp, email, bio, name })
       if (!res._id) {
         throw Error('DB Error')
       }
@@ -97,4 +127,4 @@ class SignUpSrvc {
     }
   }
 }
-module.exports = SignUpSrvc
+module.exports = UserSrvc
