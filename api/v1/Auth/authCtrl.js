@@ -1,8 +1,8 @@
 const AuthSrvc = require('./authSrvc')
 
 class AuthCtrl {
-  auth(req, res, next) {
-    new AuthSrvc().auth(
+  login(req, res, next) {
+    new AuthSrvc().login(
       req,
       res,
       data => {
@@ -12,7 +12,17 @@ class AuthCtrl {
       next
     )
   }
-
+  signup(req, res, next) {
+    new AuthSrvc().signup(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
 }
 
 module.exports = AuthCtrl

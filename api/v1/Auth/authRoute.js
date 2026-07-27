@@ -2,5 +2,10 @@ const router = require('express').Router()
 const AuthCtrl = require('./authCtrl')
 
 //routes
-router.post('', new AuthCtrl().auth)
+router.post('/login', new AuthCtrl().login)
+router.post('/signup', new AuthCtrl().signup)
+
+// router.post('/test', new AuthCtrl().authProfile)
+// router.post('/get-cookie', new AuthCtrl().getCookie)
+
 module.exports = router

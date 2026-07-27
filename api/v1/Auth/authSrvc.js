@@ -3,12 +3,13 @@
  * This file has model function.
  */
 
-const status = require('../../../https_status')
-const { validateInputs } = require('../../../utils')
-const User = require('../../../services/User')
+const status = require('../../../https_status');
+const { validateInputs } = require('../../../utils');
+const User = require('../../../services/User');
+const jwt = require('jsonwebtoken');
 
 class AuthSrvc {
-  async auth(req, res, callback) {
+  async login(req, res, callback) {
     const { phone } = req.body
     let statusCode = ''
     try {
@@ -36,16 +37,65 @@ class AuthSrvc {
         })
       }
 
-      const user = new User()
-      const res = await user.search({ phone })
-      if (!res?._id) {
+      const user = new User();
+      const result = await user.search({ phone });
+      if (!result?._id) {
         return callback({
           message: `User not found`,
           success: false,
           statusCode: status.HTTPS.NOT_FOUND
         })
       }
-      callback({ ...response, data: res })
+      //create jwt token
+      // const token = await jwt.sign({ _id: result._id }, process.env.JWT_KEY);
+      // res.cookie('token', token);
+      callback({ ...response, data: result })
+    } catch (error) {
+      callback({
+        message: `Error: ${error.message}`,
+        success: false,
+        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+      })
+    }
+  }
+  async signup(req, res, callback) {
+    const { name, phone, email, trading_exp } = req.body
+    let statusCode = ''
+    try {
+      let response = {
+        message: `User created successfully`,
+        success: true,
+        statusCode: status.HTTPS.SUCCESS
+      }
+
+      const requiredInputs = {
+        name, phone
+      }
+      const { success, key } = await validateInputs(requiredInputs)
+      if (!success) {
+        return callback({
+          message: `Invalid or missing input: ${key}`,
+          success: false,
+          statusCode: status.HTTPS.BAD_REQUEST
+        })
+      } else if (isNaN(phone)) {
+        return callback({
+          message: `Invalid input: ${phone}`,
+          success: false,
+          statusCode: status.HTTPS.BAD_REQUEST
+        })
+      }
+
+      const user = new User()
+      const res = await user.create({ name, phone, email, trading_exp })
+      if (!res.success) {
+        return callback({
+          message: res.msg,
+          success: false,
+          statusCode: res.statusCode
+        })
+      }
+      callback({ ...response, ...res })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
@@ -82,7 +132,7 @@ class AuthSrvc {
         })
       }
 
-      const user = new UserSrvc()
+      const user = new User()
       const res = await user.details({ phone })
       if (!res._id) {
         throw Error('DB Error')
@@ -96,5 +146,6 @@ class AuthSrvc {
       })
     }
   }
+
 }
 module.exports = AuthSrvc
