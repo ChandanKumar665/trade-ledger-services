@@ -6,11 +6,13 @@ const path = require('path')
 const api_v1 = require('./api/v1')
 const app = express()
 const useMongoose = true
+const cookieParser = require('cookie-parser')
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
+app.use(cookieParser())
 app.use(cors())
 dotenv.config();
 

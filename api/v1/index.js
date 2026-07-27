@@ -4,14 +4,12 @@
  *  user registration and authentication.
  */
 
-const router = require('express').Router()
+const router = require('express').Router();
 
 // define your routes
-router.use('/user', require('./User/userRoute'))
-router.use('/user/auth', require('./Auth/authRoute'))
-router.use('/trade', require('./Trade-Journal/tradeRoute'))
-router.use('/account', require('./Portfolio/portfolioRoute'))
-
-
+router.use('/auth', require('./Auth/authRoute'));
+router.use('/user', require('./User/userRoute'));
+router.use('/trade', require('./Trade-Journal/tradeRoute'));
+router.use('/account', require('./Portfolio/portfolioRoute'));
 
 module.exports = router

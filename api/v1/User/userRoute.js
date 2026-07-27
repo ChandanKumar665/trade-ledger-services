@@ -2,7 +2,6 @@ const router = require('express').Router()
 const UserCtrl = require('./userCtrl')
 
 //routes
-router.post('/signup', new UserCtrl().create)
 router.post('/profile', new UserCtrl().profile)
 router.post('/update', new UserCtrl().update)
 
