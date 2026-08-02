@@ -30,5 +30,10 @@ class Account {
         const res = await AccountModel.findOneAndUpdate({ _id: new ObjectId(account_id), user_id }, { name, curr, initial_cap });
         return res
     }
+    async info(input) {
+        const { user_id, account_id } = input
+        const res = await AccountModel.findOne({ _id: new ObjectId(account_id), user_id });
+        return res
+    }
 }
 module.exports = Account

@@ -47,9 +47,14 @@ class AuthSrvc {
         })
       }
       //create jwt token
-      // const token = await jwt.sign({ _id: result._id }, process.env.JWT_KEY);
-      // res.cookie('token', token);
-      callback({ ...response, data: result })
+      const token = await result.getJWTToken();
+      res.cookie('token', token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+      });
+      callback({ ...response, data: { token } })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
@@ -104,40 +109,20 @@ class AuthSrvc {
       })
     }
   }
-  async details(req, res, callback) {
-    const { phone } = req.body
+  async logout(req, res, callback) {
     let statusCode = ''
     try {
       let response = {
-        message: `ok`,
+        message: `Logged out successfully`,
         success: true,
         statusCode: status.HTTPS.SUCCESS
       }
 
-      const requiredInputs = {
-        phone
-      }
-      const { success, key } = await validateInputs(requiredInputs)
-      if (!success) {
-        return callback({
-          message: `Invalid or missing input: ${key}`,
-          success: false,
-          statusCode: status.HTTPS.BAD_REQUEST
-        })
-      } else if (isNaN(phone)) {
-        return callback({
-          message: `Invalid input: ${phone}`,
-          success: false,
-          statusCode: status.HTTPS.BAD_REQUEST
-        })
-      }
-
-      const user = new User()
-      const res = await user.details({ phone })
-      if (!res._id) {
-        throw Error('DB Error')
-      }
-      callback({ ...response, data: res })
+      res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+      });
+      callback({ ...response, data: response })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,

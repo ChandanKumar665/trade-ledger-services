@@ -23,6 +23,17 @@ class AuthCtrl {
       next
     )
   }
+  logout(req, res, next) {
+    new AuthSrvc().logout(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
 }
 
 module.exports = AuthCtrl

@@ -6,6 +6,7 @@
 const status = require('../../../https_status')
 const { validateInputs } = require('../../../utils')
 const Trade = require('../../../services/Trade')
+const AppError = require('../../../utils/AppError')
 
 class TradeSrvc {
   async create(req, res, callback) {
@@ -19,7 +20,6 @@ class TradeSrvc {
       qty,
       pnl,
       charges,
-      user_id,
       account_id
     } = req.body
     let statusCode = ''
@@ -39,7 +39,6 @@ class TradeSrvc {
         exit_price,
         qty,
         pnl,
-        user_id,
         account_id
       }
       const { success, key } = await validateInputs(requiredInputs)
@@ -69,28 +68,26 @@ class TradeSrvc {
         qty,
         pnl,
         charges,
-        user_id,
+        user_id: req.user._id.toString(),
         account_id
       })
       if (!res._id) {
-        throw Error('DB Error')
+        throw new AppError('DB Error', status.HTTPS.DB_ERROR)
       }
       callback({ ...response, data: res._id })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
         success: false,
-        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+        statusCode: error?.statusCode || status.HTTPS.UNKNOWN_ERROR
       })
     }
   }
   async details(req, res, callback) {
-
-    const { trade_id } = req.body
-    let statusCode = ''
+    const trade_id = req.params.trade_id
     try {
       let response = {
-        message: `Trade details fecthed successfully`,
+        message: `Trade info`,
         success: true,
         statusCode: status.HTTPS.SUCCESS
       }
@@ -108,22 +105,22 @@ class TradeSrvc {
       }
 
       const trade = new Trade()
-      const res = await trade.details({ trade_id })
-      if (!res._id) {
-        throw Error('DB Error')
+      const res = await trade.details({ trade_id, user_id: req.user._id.toString() })
+      if (!res) {
+        throw new AppError('Trade not found', status.HTTPS.NOT_FOUND)
       }
       callback({ ...response, data: res })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
         success: false,
-        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+        statusCode: error?.statusCode || status.HTTPS.UNKNOWN_ERROR
       })
     }
   }
   async getList(req, res, callback) {
 
-    const { user_id, account_id, filter } = req.body
+    const { account_id, filter } = req.body
     let statusCode = ''
     try {
       let response = {
@@ -133,7 +130,7 @@ class TradeSrvc {
       }
 
       const requiredInputs = {
-        user_id, account_id
+        account_id
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -145,7 +142,7 @@ class TradeSrvc {
       }
 
       const trade = new Trade()
-      const res = await trade.getList({ user_id, account_id, filter })
+      const res = await trade.getList({ user_id: req.user._id.toString(), account_id, filter })
 
       callback({ ...response, data: res })
     } catch (error) {
@@ -157,9 +154,7 @@ class TradeSrvc {
     }
   }
   async tradeStats(req, res, callback) {
-
-    const { user_id, account_id, filter } = req.body
-    let statusCode = ''
+    const { account_id, filter } = req.body
     try {
       let response = {
         message: `Trade stat fecthed successfully`,
@@ -168,7 +163,7 @@ class TradeSrvc {
       }
 
       const requiredInputs = {
-        user_id, account_id
+        account_id
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -180,20 +175,20 @@ class TradeSrvc {
       }
 
       const trade = new Trade()
-      const res = await trade.getTradeStats({ user_id, account_id, filter })
+      const res = await trade.getTradeStats({ user_id: req.user._id.toString(), account_id, filter })
 
       callback({ ...response, data: res })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
         success: false,
-        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+        statusCode: error?.statusCode || status.HTTPS.UNKNOWN_ERROR
       })
     }
   }
   async deleteTrade(req, res, callback) {
-    const { user_id, account_id, trade_id } = req.body
-    let statusCode = ''
+    const trade_id = req.params.trade_id
+    const { account_id } = req.body
     try {
       let response = {
         message: `Trade deleted successfully`,
@@ -202,7 +197,7 @@ class TradeSrvc {
       }
 
       const requiredInputs = {
-        user_id, account_id, trade_id
+        account_id, trade_id
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -214,9 +209,9 @@ class TradeSrvc {
       }
 
       const trade = new Trade()
-      const res = await trade.deleteTrade(requiredInputs)
+      const res = await trade.deleteTrade({ ...requiredInputs, user_id: req.user._id.toString() })
       if (!res._id) {
-        throw Error('DB Error')
+        throw new AppError('DB Error', status.HTTPS.DB_ERROR)
       }
       callback({ ...response, data: res })
     } catch (error) {
@@ -228,7 +223,9 @@ class TradeSrvc {
     }
   }
   async updateTrade(req, res, callback) {
-    const { user_id, account_id, trade_id,
+    const trade_id = req.params.trade_id
+    const {
+      account_id,
       symbol, order_type, desc, open_time, close_time, entry_price, exit_price, qty, pnl, charges } = req.body
     let statusCode = ''
     try {
@@ -239,7 +236,6 @@ class TradeSrvc {
       }
 
       const requiredInputs = {
-        user_id,
         account_id,
         trade_id,
         symbol,
@@ -266,10 +262,10 @@ class TradeSrvc {
         })
       }
 
-      const trade = new Trade()
-      const res = await trade.update({ ...requiredInputs, desc, charges })
-      if (!res._id) {
-        throw Error('DB Error')
+      const trade = new Trade();
+      const res = await trade.update({ ...requiredInputs, desc, charges, user_id: req.user._id.toString() })
+      if (!res) {
+        throw new AppError('DB Error', status.HTTPS.DB_ERROR)
       }
       callback({ ...response, data: res._id })
     } catch (error) {

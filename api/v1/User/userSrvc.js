@@ -6,11 +6,10 @@
 const status = require('../../../https_status')
 const { validateInputs } = require('../../../utils')
 const User = require('../../../services/User')
+const AppError = require('../../../utils/AppError')
 
 class UserSrvc {
   async profile(req, res, callback) {
-    const { user_id } = req.body
-    let statusCode = ''
     try {
       let response = {
         message: `ok`,
@@ -18,34 +17,22 @@ class UserSrvc {
         statusCode: status.HTTPS.SUCCESS
       }
 
-      const requiredInputs = {
-        user_id
-      }
-      const { success, key } = await validateInputs(requiredInputs)
-      if (!success) {
-        return callback({
-          message: `Invalid or missing input: ${key}`,
-          success: false,
-          statusCode: status.HTTPS.BAD_REQUEST
-        })
-      }
-
       const user = new User()
-      const res = await user.profile({ user_id })
+      const res = await user.profile({ user_id: req.user._id.toString() })
       if (!res._id) {
-        throw Error('DB Error')
+        throw new AppError('DB Error', status.HTTPS.DB_ERROR)
       }
       callback({ ...response, data: res })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
         success: false,
-        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+        statusCode: status?.statusCode || status.HTTPS.UNKNOWN_ERROR
       })
     }
   }
   async update(req, res, callback) {
-    const { user_id, trading_exp, email, bio, name } = req.body
+    const { trading_exp, email, bio, name } = req.body
     let statusCode = ''
     try {
       let response = {
@@ -54,29 +41,17 @@ class UserSrvc {
         statusCode: status.HTTPS.SUCCESS
       }
 
-      const requiredInputs = {
-        user_id
-      }
-      const { success, key } = await validateInputs(requiredInputs)
-      if (!success) {
-        return callback({
-          message: `Invalid or missing input: ${key}`,
-          success: false,
-          statusCode: status.HTTPS.BAD_REQUEST
-        })
-      }
-
       const user = new User()
-      const res = await user.update({ user_id, trading_exp, email, bio, name })
-      if (!res._id) {
-        throw Error('DB Error')
+      const res = await user.update({ user_id: req.user._id.toString(), trading_exp, email, bio, name })
+      if (!res?._id) {
+        throw new AppError('DB Error', status.HTTPS.DB_ERROR)
       }
       callback({ ...response, data: res })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
         success: false,
-        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+        statusCode: error?.statusCode || status.HTTPS.UNKNOWN_ERROR
       })
     }
   }

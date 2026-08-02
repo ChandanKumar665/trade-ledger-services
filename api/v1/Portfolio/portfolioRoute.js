@@ -1,11 +1,14 @@
 const router = require('express').Router()
+const { auth } = require('../../../middlewares/auth')
 const AccountCtrl = require('./portfolioCtrl')
 
-//routes
-router.post('', new AccountCtrl().create)
-router.post('/list', new AccountCtrl().getList)
-router.post('/remove', new AccountCtrl().removeAccount)
-router.post('/update', new AccountCtrl().updateAccount)
+// routes
+router.post('', auth, new AccountCtrl().create)
+router.get('/list', auth, new AccountCtrl().getAccountList)
+router.get('/:acc_id', auth, new AccountCtrl().info)
+router.put('/:acc_id', auth, new AccountCtrl().update)
+router.delete('/:acc_id', auth, new AccountCtrl().remove)
+
 
 // router.post('/ab?c', new SignUpCtrl().details) // will work for both /ab or abc - regex
 module.exports = router

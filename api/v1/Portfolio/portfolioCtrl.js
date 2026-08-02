@@ -1,6 +1,8 @@
 const AccountSrvc = require('./portfolioSrvc')
 
 class AccountCtrl {
+
+  //new route
   create(req, res, next) {
     new AccountSrvc().create(
       req,
@@ -12,8 +14,8 @@ class AccountCtrl {
       next
     )
   }
-  getList(req, res, next) {
-    new AccountSrvc().getList(
+  getAccountList(req, res, next) {
+    new AccountSrvc().getAccountList(
       req,
       res,
       data => {
@@ -23,8 +25,8 @@ class AccountCtrl {
       next
     )
   }
-  removeAccount(req, res, next) {
-    new AccountSrvc().removeAccount(
+  update(req, res, next) {
+    new AccountSrvc().update(
       req,
       res,
       data => {
@@ -34,8 +36,19 @@ class AccountCtrl {
       next
     )
   }
-  updateAccount(req, res, next) {
-    new AccountSrvc().updateAccount(
+  info(req, res, next) {
+    new AccountSrvc().info(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
+  remove(req, res, next) {
+    new AccountSrvc().remove(
       req,
       res,
       data => {
