@@ -1,26 +1,27 @@
-const https_status = require('../https_status');
+const status = require('../https_status');
 const jwt = require('jsonwebtoken');
 const User = require('../services/User');
+const AppError = require('../utils/AppError');
 
-const auth = async (req, res, callback) => {
+const auth = async (req, res, next) => {
     try {
         const { token } = req.cookies;
         if (!token) {
-            throw Error('Token is not present');
+            throw new AppError('Token is not present', status.HTTPS.BAD_REQUEST);
         }
         const decodedData = await jwt.verify(token, process.env.JWT_KEY);
         if (!decodedData?._id) {
-            throw Error('Invalid token');
+            throw new AppError('Invalid token', status.HTTPS.UNAUTHORIZED);
         }
         const user = new User();
-        const result = await user.profile({ user_id: decodedData._id });
+        const result = await user.profile({ user_id: decodedData._id, phone: decodedData.phone });
         req.user = result;
         next();
     } catch (error) {
-        return callback({
+        res.status(error?.statusCode || status.HTTPS.UNKNOWN_ERROR).json({
             message: `Error: ${error.message}`,
             success: false,
-            statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+            statusCode: error?.statusCode || status.HTTPS.UNKNOWN_ERROR
         })
     }
 }

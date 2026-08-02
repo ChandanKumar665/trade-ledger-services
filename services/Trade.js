@@ -16,8 +16,8 @@ class Trade {
         return res
     }
     async details(input) {
-        const { trade_id } = input
-        const res = await TradeModel.findOne({ _id: new ObjectId(trade_id) });
+        const { trade_id, user_id } = input
+        const res = await TradeModel.findOne({ _id: new ObjectId(trade_id), user_id });
         return res
     }
     async getList(input) {
@@ -70,6 +70,7 @@ class Trade {
 
     async getTradeStats(input) {
         const { user_id, account_id, filter } = input
+
         const end = new Date(filter?.end);
         end?.setUTCDate(end?.getUTCDate() + 1);
         const filterQuery = filter?.start && filter?.end ? {
@@ -154,6 +155,7 @@ class Trade {
         const res = await TradeModel.findOneAndDelete({ _id: new ObjectId(trade_id), user_id, account_id });
         return res
     }
+
     async update(input) {
         const { user_id, account_id, trade_id,
             symbol, order_type, desc, open_time, close_time, entry_price, exit_price, qty, pnl, charges

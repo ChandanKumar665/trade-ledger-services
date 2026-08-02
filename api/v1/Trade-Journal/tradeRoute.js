@@ -1,13 +1,14 @@
 const router = require('express').Router()
+const { auth } = require('../../../middlewares/auth')
 const TradeCtrl = require('./tradeCtrl')
 
 //routes
-router.post('', new TradeCtrl().create)
-router.post('/info', new TradeCtrl().details)
-router.post('/list', new TradeCtrl().getList)
-router.post('/remove', new TradeCtrl().deleteTrade)
-router.post('/update', new TradeCtrl().updateTrade)
-router.post('/stats', new TradeCtrl().tradeStats)
+router.post('', auth, new TradeCtrl().create)
+router.get('/:trade_id', auth, new TradeCtrl().details)
+router.post('/list', auth, new TradeCtrl().getList)
+router.delete('/:trade_id', auth, new TradeCtrl().deleteTrade)
+router.put('/:trade_id', auth, new TradeCtrl().updateTrade)
+router.post('/stats', auth, new TradeCtrl().tradeStats)
 
 // router.post('/ab?c', new SignUpCtrl().details) // will work for both /ab or abc - regex
 module.exports = router
