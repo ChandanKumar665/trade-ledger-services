@@ -32,7 +32,7 @@ const userSchema = new Schema({
 }, { timestamps: true });
 
 userSchema.methods.getJWTToken = async function () {
-    const token = await jwt.sign({ _id: this._id.toString(), phone: this.phone }, process.env.JWT_KEY, { expiresIn: "7d" });
+    const token = await jwt.sign({ _id: this._id.toString(), phone: this.phone }, process.env.JWT_SECRET, { expiresIn: "7d" });
     return token
 }
 module.exports = mongoose.model('users', new Schema(userSchema, { timestamps: true }))
