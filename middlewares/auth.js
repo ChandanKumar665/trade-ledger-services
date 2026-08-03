@@ -9,7 +9,7 @@ const auth = async (req, res, next) => {
         if (!token) {
             throw new AppError('Token is not present', status.HTTPS.BAD_REQUEST);
         }
-        const decodedData = await jwt.verify(token, process.env.JWT_KEY);
+        const decodedData = await jwt.verify(token, process.env.JWT_SECRET);
         if (!decodedData?._id) {
             throw new AppError('Invalid token', status.HTTPS.UNAUTHORIZED);
         }
