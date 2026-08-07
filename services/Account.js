@@ -1,13 +1,10 @@
 const dotenv = require('dotenv')
 dotenv.config()
-const { client, ObjectId } = require('./db')
+const { ObjectId } = require('./db')
 const AccountModel = require('../models/AccountModel')
 
 class Account {
-    constructor() {
-        this.db = client.db(process.env.DB)
-        this.collection = this.db.collection('accounts');
-    }
+    constructor() { }
 
     async create(input) {
         const { name, curr, initial_cap, user_id } = input

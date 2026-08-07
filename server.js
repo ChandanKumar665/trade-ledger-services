@@ -7,7 +7,6 @@ const path = require('path')
 const { allowedDomain } = require('./config')
 const api_v1 = require('./api/v1')
 const app = express()
-const useMongoose = true
 const cookieParser = require('cookie-parser')
 const server = http.createServer(app);
 
@@ -29,11 +28,9 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html')) //relative path
 })
 
-const { connectDB, client, connectMongooseDB } = require('./services/db')
+const { connectMongooseDB } = require('./services/db')
 
-
-const selectDB = useMongoose ? connectMongooseDB : connectDB
-selectDB().then(() => {
+connectMongooseDB().then(() => {
     server.listen(PORT, async () => {
         console.log(`Server started at port ${PORT}`)
     })

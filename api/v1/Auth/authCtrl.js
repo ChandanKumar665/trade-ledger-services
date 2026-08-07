@@ -12,6 +12,17 @@ class AuthCtrl {
       next
     )
   }
+  checkMe(req, res, next) {
+    new AuthSrvc().checkMe(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
   signup(req, res, next) {
     new AuthSrvc().signup(
       req,

@@ -1,14 +1,11 @@
 const dotenv = require('dotenv')
 dotenv.config()
-const { client, ObjectId } = require('./db')
+const { ObjectId } = require('./db')
 const TradeModel = require('../models/TradeModel')
 const dates = { createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString() }
 
 class Trade {
-    constructor() {
-        this.db = client.db(process.env.DB)
-        this.collection = this.db.collection('trades');
-    }
+    constructor() { }
 
     async create(input) {
         const trade = new TradeModel(input);

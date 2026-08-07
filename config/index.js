@@ -1,3 +1,4 @@
+
 module.exports = {
-    allowedDomain: [process.env.DEV, process.env.PROD]
+    allowedDomain: [process.env.DEV, process.env.PROD, process.env.LOCAL],
 }

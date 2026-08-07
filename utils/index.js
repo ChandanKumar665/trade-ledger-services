@@ -92,3 +92,6 @@ exports.x = (input = []) => {
         return []
     }
 }
+exports.normalizePhone = (mobile) => {
+    return mobile.replace(/\D/g, "").slice(-10);
+};

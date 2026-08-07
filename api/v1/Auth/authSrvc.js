@@ -4,14 +4,14 @@
  */
 
 const status = require('../../../https_status');
-const { validateInputs } = require('../../../utils');
+const { validateInputs, normalizePhone } = require('../../../utils');
 const User = require('../../../services/User');
 const jwt = require('jsonwebtoken');
+const firebaseAuth = require('../../../config/firebaseAdmin')
 
 class AuthSrvc {
   async login(req, res, callback) {
-    const { phone } = req.body
-    let statusCode = ''
+    const { phone, fbtoken } = req.body
     try {
       let response = {
         message: `User Found`,
@@ -20,7 +20,7 @@ class AuthSrvc {
       }
 
       const requiredInputs = {
-        phone
+        phone,
       }
       const { success, key } = await validateInputs(requiredInputs)
       if (!success) {
@@ -36,9 +36,10 @@ class AuthSrvc {
           statusCode: status.HTTPS.BAD_REQUEST
         })
       }
-
+      const decoded = await firebaseAuth.verifyIdToken(fbtoken);
+      const fbphn = decoded.phone_number;
       const user = new User();
-      const result = await user.search({ phone });
+      const result = await user.search({ phone: normalizePhone(phone) });
       if (!result?._id) {
         return callback({
           message: `User not found`,
@@ -59,7 +60,23 @@ class AuthSrvc {
       callback({
         message: `Error: ${error.message}`,
         success: false,
-        statusCode: statusCode || status.HTTPS.UNKNOWN_ERROR
+        statusCode: status.HTTPS.UNAUTHORIZED
+      })
+    }
+  }
+  async checkMe(req, res, callback) {
+    try {
+      let response = {
+        message: `User Found`,
+        success: true,
+        statusCode: status.HTTPS.SUCCESS
+      }
+      callback({ ...response, data: req.user })
+    } catch (error) {
+      callback({
+        message: `Error: ${error.message}`,
+        success: false,
+        statusCode: status.HTTPS.UNKNOWN_ERROR
       })
     }
   }
@@ -92,15 +109,23 @@ class AuthSrvc {
       }
 
       const user = new User()
-      const res = await user.create({ name, phone, email, trading_exp })
-      if (!res.success) {
+      const result = await user.create({ name, phone: normalizePhone(phone), email, trading_exp });
+      if (!result.success) {
         return callback({
-          message: res.msg,
+          message: result.msg,
           success: false,
-          statusCode: res.statusCode
+          statusCode: result.statusCode
         })
       }
-      callback({ ...response, ...res })
+      //create jwt token
+      const token = await result.data.getJWTToken();
+      res.cookie('token', token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+      });
+      callback({ ...response, data: result.data })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
