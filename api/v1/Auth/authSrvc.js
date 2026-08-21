@@ -11,7 +11,7 @@ const firebaseAuth = require('../../../config/firebaseAdmin')
 
 class AuthSrvc {
   async login(req, res, callback) {
-    const { phone, fbtoken } = req.body
+    let { phone, fbtoken } = req.body
     try {
       let response = {
         message: `User Found`,
