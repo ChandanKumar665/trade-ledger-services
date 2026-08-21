@@ -10,7 +10,7 @@ const app = express()
 const cookieParser = require('cookie-parser')
 const server = http.createServer(app);
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cookieParser())

@@ -36,8 +36,12 @@ class AuthSrvc {
           statusCode: status.HTTPS.BAD_REQUEST
         })
       }
-      const decoded = await firebaseAuth.verifyIdToken(fbtoken);
-      const fbphn = decoded.phone_number;
+      let decoded = ''
+      if (process.env.NODE_ENV === 'production') {
+        decoded = await firebaseAuth.verifyIdToken(fbtoken);
+        phone = decoded.phone_number;
+      }
+
       const user = new User();
       const result = await user.search({ phone: normalizePhone(phone) });
       if (!result?._id) {
@@ -147,7 +151,7 @@ class AuthSrvc {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
       });
-      callback({ ...response, data: response })
+      callback({ ...response })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,

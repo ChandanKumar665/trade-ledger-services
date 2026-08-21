@@ -125,6 +125,7 @@ class Trade {
             {
                 $addFields: {
                     initial_cap: "$account.initial_cap",
+                    curr: "$account.curr",
                     total: {
                         $add: [
                             "$account.initial_cap",
@@ -135,9 +136,15 @@ class Trade {
             },
             {
                 $project: {
+                    symbol: 1,
+                    qty: 1,
+                    order_type: 1,
+                    entry_price: 1,
+                    exit_price: 1,
                     open_time: 1,
                     close_time: 1,
                     pnl: 1,
+                    curr: 1,
                     cumulativePnl: 1,
                     initial_cap: 1,
                     total: 1,
