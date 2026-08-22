@@ -52,14 +52,15 @@ class AuthSrvc {
         })
       }
       //create jwt token
+      const isProd = process.env.NODE_ENV === "production";
       const token = await result.getJWTToken();
       res.cookie('token', token, {
         httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        sameSite: isProd ? "none" : "lax",
+        secure: isProd,
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
       });
-      callback({ ...response, data: { token } })
+      callback({ ...response })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
