@@ -37,10 +37,10 @@ class AuthSrvc {
         })
       }
       let decoded = ''
-      if (process.env.NODE_ENV === 'production') {
-        decoded = await firebaseAuth.verifyIdToken(fbtoken);
-        phone = decoded.phone_number;
-      }
+      // if (process.env.NODE_ENV === 'production') {
+      decoded = await firebaseAuth.verifyIdToken(fbtoken);
+      phone = decoded.phone_number;
+      // }
 
       const user = new User();
       const result = await user.search({ phone: normalizePhone(phone) });

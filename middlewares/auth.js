@@ -7,7 +7,7 @@ const auth = async (req, res, next) => {
     try {
         const { token } = req.cookies;
         if (!token) {
-            throw new AppError('Token is not present', status.HTTPS.BAD_REQUEST);
+            throw new AppError('Token is not present', status.HTTPS.UNAUTHORIZED);
         }
         const decodedData = await jwt.verify(token, process.env.JWT_SECRET);
         if (!decodedData?._id) {
