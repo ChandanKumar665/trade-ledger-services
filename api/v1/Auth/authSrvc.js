@@ -6,8 +6,7 @@
 const status = require('../../../https_status');
 const { validateInputs, normalizePhone } = require('../../../utils');
 const User = require('../../../services/User');
-const jwt = require('jsonwebtoken');
-const firebaseAuth = require('../../../config/firebaseAdmin')
+const firebaseAuth = require('../../../config/firebaseAdmin');
 
 class AuthSrvc {
   async login(req, res, callback) {
@@ -58,6 +57,7 @@ class AuthSrvc {
         httpOnly: true,
         sameSite: isProd ? "none" : "lax",
         secure: isProd,
+        path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
       });
       callback({ ...response })

@@ -19,14 +19,21 @@ app.use(cors({
     credentials: true
 }))
 
-app.use('/api/v1', api_v1)
-
+app.use((req, res, next) => {
+    console.log("==========");
+    console.log('url', req.originalUrl);
+    console.log("HEADER:", req.headers.cookie);
+    console.log("COOKIES:", req.cookies);
+    next();
+});
 
 //set static folder
 app.use(express.static('.'))
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html')) //relative path
-})
+});
+
+app.use('/api/v1', api_v1);
 
 const { connectMongooseDB } = require('./services/db')
 
