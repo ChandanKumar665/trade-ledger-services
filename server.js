@@ -26,6 +26,7 @@ app.use((req, res, next) => {
     console.log("COOKIES:", req.cookies);
     next();
 });
+app.use('/api/v1', api_v1);
 
 //set static folder
 app.use(express.static('.'))
@@ -33,7 +34,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html')) //relative path
 });
 
-app.use('/api/v1', api_v1);
 
 const { connectMongooseDB } = require('./services/db')
 
