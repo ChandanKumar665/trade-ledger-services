@@ -1,13 +1,13 @@
 const express = require('express');
 const http = require('http');
-const cors = require('cors')
-const dotenv = require('dotenv')
+const cors = require('cors');
+const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
 dotenv.config();
 const path = require('path')
 const { allowedDomain } = require('./config')
 const api_v1 = require('./api/v1')
 const app = express()
-const cookieParser = require('cookie-parser')
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 8080;
