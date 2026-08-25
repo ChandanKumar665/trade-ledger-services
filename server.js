@@ -12,20 +12,20 @@ const server = http.createServer(app);
 
 const PORT = process.env.PORT || 8080;
 
+app.use(express.json());
 app.use(cors({
     origin: allowedDomain,
     credentials: true
 }));
 
-app.use(express.json());
-app.use(cookieParser())
-
+app.use(cookieParser());
 
 app.use((req, res, next) => {
-    console.log("==========");
-    console.log('url', req.originalUrl);
-    console.log("HEADER:", req.headers.cookie);
-    console.log("COOKIES:", req.cookies);
+    console.log("=== AUTH ME ===");
+    console.log("Cookie header:", req.headers.cookie);
+    console.log("req.cookies:", req.cookies);
+    console.log("Origin:", req.headers.origin);
+    console.log("Host:", req.headers.host);
     next();
 });
 app.use('/api/v1', api_v1);
