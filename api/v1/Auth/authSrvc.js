@@ -53,7 +53,7 @@ class AuthSrvc {
       //create jwt token
       const isProd = process.env.NODE_ENV === "production";
       const token = await result.getJWTToken();
-      res.cookie('token', token, {
+      res.cookie('__session', token, {
         httpOnly: true,
         sameSite: "lax",
         secure: isProd,

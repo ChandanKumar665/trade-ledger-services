@@ -6,9 +6,8 @@ const AppError = require('../utils/AppError');
 const auth = async (req, res, next) => {
     try {
         console.log("PATH--------->", req.path);
-        console.log("COOKIE HEADER--------->", req.headers.cookie);
         console.log("PARSED COOKIES-------->", req.cookies);
-        const { token } = req.cookies;
+        const token = req.cookies.__session;
         if (!token) {
             throw new AppError('Token is not present', status.HTTPS.UNAUTHORIZED);
         }
