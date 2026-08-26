@@ -20,18 +20,6 @@ app.use(cors({
 
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-    console.log("=== AUTH ME ===");
-    console.log("Cookie header:", req.headers.cookie);
-    console.log("req.cookies:", req.cookies);
-    console.log("Origin:", req.headers.origin);
-    console.log("Host:", req.headers.host);
-    console.log("referer:", req.headers.referer);
-    console.log("forwardedHost:", req.headers["x-forwarded-host"]);
-    console.log("forwardedProto:", req.headers["x-forwarded-proto"]);
-    console.log("all headers:", req.headers);
-    next();
-});
 app.use('/api/v1', api_v1);
 
 //set static folder
