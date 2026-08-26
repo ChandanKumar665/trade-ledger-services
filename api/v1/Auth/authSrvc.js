@@ -148,7 +148,7 @@ class AuthSrvc {
         statusCode: status.HTTPS.SUCCESS
       }
 
-      res.clearCookie('token', {
+      res.clearCookie('__session', {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
       });
