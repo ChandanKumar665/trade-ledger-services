@@ -27,41 +27,8 @@ class Trade {
                 $lt: end?.toISOString().split('T')[0]
             }
         } : {}
-        const res = await TradeModel.aggregate(
-            [
-                { $match: { user_id, account_id, ...filterQuery } },
-                {
-                    $addFields: {
-                        accountIdObj: {
-                            $toObjectId: "$account_id"
-                        }
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'accounts',
-                        localField: 'accountIdObj',
-                        foreignField: '_id',
-                        pipeline: [
-                            {
-                                $project: {
-                                    _id: 0,
-                                    curr: 1
-                                }
-                            }
-                        ],
-                        as: 'curr'
-                    }
-                },
-                {
-                    $project: {
-                        createdAt: 0,
-                        updatedAt: 0
-                    }
-                }
-            ]
-        )
-            .sort({ open_time: -1 });
+        console.log(filterQuery)
+        const res = await TradeModel.find({ user_id, account_id, ...filterQuery }).populate('account_id', ['_id', 'curr']).sort({ open_time: -1 });
         return res
     }
 
