@@ -12,6 +12,28 @@ class TradeCtrl {
       next
     )
   }
+  csvSave(req, res, next) {
+    new TradeSrvc().csvSave(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
+  script(req, res, next) {
+    new TradeSrvc().script(
+      req,
+      res,
+      data => {
+        const statusCode = data.statusCode
+        res.status(statusCode).json(data)
+      },
+      next
+    )
+  }
   details(req, res, next) {
     new TradeSrvc().details(
       req,

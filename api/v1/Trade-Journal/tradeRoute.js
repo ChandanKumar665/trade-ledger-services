@@ -4,11 +4,14 @@ const TradeCtrl = require('./tradeCtrl')
 
 //routes
 router.post('', auth, new TradeCtrl().create)
+router.post('/csv_save', auth, new TradeCtrl().csvSave)
+// router.post('/script', auth, new TradeCtrl().script)
 router.get('/:trade_id', auth, new TradeCtrl().details)
 router.post('/list', auth, new TradeCtrl().getList)
 router.delete('/:trade_id', auth, new TradeCtrl().deleteTrade)
 router.put('/:trade_id', auth, new TradeCtrl().updateTrade)
 router.post('/stats', auth, new TradeCtrl().tradeStats)
+router.post('/stats/cal', auth, new TradeCtrl().tradeStats)
 
 // router.post('/ab?c', new SignUpCtrl().details) // will work for both /ab or abc - regex
 module.exports = router

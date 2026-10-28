@@ -11,6 +11,7 @@ const firebaseAuth = require('../../../config/firebaseAdmin');
 class AuthSrvc {
   async login(req, res, callback) {
     let { phone, fbtoken } = req.body
+    const isDev = process.env.NODE_ENV === 'dev';
     try {
       let response = {
         message: `User Found`,
@@ -36,8 +37,10 @@ class AuthSrvc {
         })
       }
       let decoded = ''
-      decoded = await firebaseAuth.verifyIdToken(fbtoken);
-      phone = decoded.phone_number;
+      if (!isDev) {
+        decoded = await firebaseAuth.verifyIdToken(fbtoken);
+        phone = decoded.phone_number;
+      }
 
       const user = new User();
       const result = await user.search({ phone: normalizePhone(phone) });
