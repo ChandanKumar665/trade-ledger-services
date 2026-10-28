@@ -10,7 +10,9 @@ const AppError = require('../../../utils/AppError')
 
 class TradeSrvc {
   async create(req, res, callback) {
-    const { symbol,
+    const {
+      txnid,
+      symbol,
       order_type,
       desc,
       open_time,
@@ -20,6 +22,7 @@ class TradeSrvc {
       qty,
       pnl,
       charges,
+      fees,
       account_id
     } = req.body
     let statusCode = ''
@@ -50,7 +53,7 @@ class TradeSrvc {
         })
       } else if (isNaN(pnl) || isNaN(qty) || isNaN(entry_price) || isNaN(exit_price)) {
         return callback({
-          message: `Invalid input:`,
+          message: `Invalid input type:`,
           success: false,
           statusCode: status.HTTPS.BAD_REQUEST
         })
@@ -58,6 +61,7 @@ class TradeSrvc {
 
       const trade = new Trade()
       const res = await trade.create({
+        txnid,
         symbol,
         order_type,
         desc,
@@ -68,6 +72,7 @@ class TradeSrvc {
         qty,
         pnl,
         charges,
+        fees,
         user_id: req.user._id.toString(),
         account_id
       })
@@ -75,6 +80,58 @@ class TradeSrvc {
         throw new AppError('DB Error', status.HTTPS.DB_ERROR)
       }
       callback({ ...response, data: res._id })
+    } catch (error) {
+      callback({
+        message: `Error: ${error.message}`,
+        success: false,
+        statusCode: error?.statusCode || status.HTTPS.UNKNOWN_ERROR
+      })
+    }
+  }
+  async csvSave(req, res, callback) {
+    const {
+      data
+    } = req.body
+    let statusCode = ''
+    try {
+      let response = {
+        message: `CSV Data saved successfully`,
+        success: true,
+        statusCode: status.HTTPS.CREATED
+      }
+
+      const finalData = data.length > 0 && data.map(item => ({
+        ...item,
+        user_id: req.user._id.toString(),
+      }))
+      const trade = new Trade()
+      const res = await trade.createMany(finalData)
+      if (!res) {
+        throw new AppError('DB Error', status.HTTPS.DB_ERROR)
+      }
+      callback({ ...response, data: res._id })
+    } catch (error) {
+      callback({
+        message: `Error: ${error.message}`,
+        success: false,
+        statusCode: error?.statusCode || status.HTTPS.UNKNOWN_ERROR
+      })
+    }
+  }
+  async script(req, res, callback) {
+    const {
+      txnid
+    } = req.body
+    try {
+      let response = {
+        message: `Script ran successfully`,
+        success: true,
+        statusCode: status.HTTPS.SUCCESS
+      }
+
+      const trade = new Trade()
+      await trade.updateScript()
+      callback({ ...response, })
     } catch (error) {
       callback({
         message: `Error: ${error.message}`,
@@ -173,9 +230,9 @@ class TradeSrvc {
           statusCode: status.HTTPS.BAD_REQUEST
         })
       }
-
+      const isCalendarView = req.path.includes('/stats/cal')
       const trade = new Trade()
-      const res = await trade.getTradeStats({ user_id: req.user._id.toString(), account_id, filter })
+      const res = await trade.getTradeStats({ user_id: req.user._id.toString(), account_id, filter }, isCalendarView)
 
       callback({ ...response, data: res })
     } catch (error) {

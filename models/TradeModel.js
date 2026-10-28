@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const tradeSchema = {
+    txnid: {
+        type: String,
+        trim: true,
+        unique: true,
+    },
     symbol: {
         type: String,
         required: [true, 'name is required'],
@@ -41,9 +46,13 @@ const tradeSchema = {
     charges: {
         type: Number,
     },
+    fees: {
+        type: Object
+    },
     account_id: {
         type: String,
-        required: [true, 'account id is required']
+        required: [true, 'account id is required'],
+        ref: 'accounts'
     },
     user_id: {
         type: String,
