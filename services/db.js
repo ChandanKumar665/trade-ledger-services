@@ -1,7 +1,7 @@
 const { MongoClient, ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
 const TradeModel = require('../models/TradeModel');
-const UserExchangeModel = require('../models/UserExchangeModel');
+// const UserExchangeModel = require('../models/UserExchangeModel');
 
 async function connectMongooseDB() {
     await mongoose.connect(`${process.env.DB2}`)
